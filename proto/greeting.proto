@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "github.com/jmarc101/grpc-protobuf/protogen/go";
+
+message GreetingsRequest {
+  string name = 1;
+}
+
+message GreetingsResponse {
+  string message = 1;
+}
+
+service GreetingService{
+  rpc Greet(GreetingsRequest) returns (GreetingsResponse);
+}
