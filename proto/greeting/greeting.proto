@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/jmarc101/grpc-protobuf/protogen/go";
+option go_package = "github.com/jmarc101/grpc-protobuf/protogen/go/greeting";
 
 message GreetingsRequest {
   string name = 1;

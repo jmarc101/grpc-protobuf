@@ -20,7 +20,7 @@ protoc:
     --go_out=. \
 	--go-grpc_out=. \
 	--go-grpc_opt=module=${GO_MODULE} \
-    ./proto/*.proto \
+    ./proto/greeting/*.proto \
 
 .PHONY: build
 build: clean protoc tidy
