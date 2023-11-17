@@ -1,3 +1,19 @@
 syntax = "proto3";
 
-option go_package =
+option go_package = "github.com/jmarc101/grpc-protobuf/protogen/go/greeting";
+
+import "google/protobuf/timestamp.proto";
+
+
+message GoodbyeRequest {
+  string name = 1;
+  google.protobuf.Timestamp leaveTime = 2;
+}
+
+message GoodbyeResponse {
+  string message = 1;
+}
+
+service GoodbyeService {
+  rpc Goodbye(GoodbyeRequest) returns (GoodbyeResponse);
+}
