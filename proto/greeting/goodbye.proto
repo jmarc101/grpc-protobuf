@@ -7,11 +7,11 @@ import "google/protobuf/timestamp.proto";
 
 message GoodbyeRequest {
   string name = 1;
-  google.protobuf.Timestamp leaveTime = 2;
 }
 
 message GoodbyeResponse {
   string message = 1;
+  google.protobuf.Timestamp leaveTime = 2;
 }
 
 service GoodbyeService {
