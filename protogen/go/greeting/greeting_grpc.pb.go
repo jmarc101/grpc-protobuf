@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	GreetingService_Greet_FullMethodName = "/GreetingService/Greet"
+	GreetingService_Greet_FullMethodName        = "/GreetingService/Greet"
+	GreetingService_SayManyHello_FullMethodName = "/GreetingService/SayManyHello"
 )
 
 // GreetingServiceClient is the client API for GreetingService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreetingServiceClient interface {
 	Greet(ctx context.Context, in *GreetingsRequest, opts ...grpc.CallOption) (*GreetingsResponse, error)
+	SayManyHello(ctx context.Context, in *GreetingsRequest, opts ...grpc.CallOption) (GreetingService_SayManyHelloClient, error)
 }
 
 type greetingServiceClient struct {
@@ -46,11 +48,44 @@ func (c *greetingServiceClient) Greet(ctx context.Context, in *GreetingsRequest,
 	return out, nil
 }
 
+func (c *greetingServiceClient) SayManyHello(ctx context.Context, in *GreetingsRequest, opts ...grpc.CallOption) (GreetingService_SayManyHelloClient, error) {
+	stream, err := c.cc.NewStream(ctx, &GreetingService_ServiceDesc.Streams[0], GreetingService_SayManyHello_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &greetingServiceSayManyHelloClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type GreetingService_SayManyHelloClient interface {
+	Recv() (*GreetingsResponse, error)
+	grpc.ClientStream
+}
+
+type greetingServiceSayManyHelloClient struct {
+	grpc.ClientStream
+}
+
+func (x *greetingServiceSayManyHelloClient) Recv() (*GreetingsResponse, error) {
+	m := new(GreetingsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // GreetingServiceServer is the server API for GreetingService service.
 // All implementations must embed UnimplementedGreetingServiceServer
 // for forward compatibility
 type GreetingServiceServer interface {
 	Greet(context.Context, *GreetingsRequest) (*GreetingsResponse, error)
+	SayManyHello(*GreetingsRequest, GreetingService_SayManyHelloServer) error
 	mustEmbedUnimplementedGreetingServiceServer()
 }
 
@@ -60,6 +95,9 @@ type UnimplementedGreetingServiceServer struct {
 
 func (UnimplementedGreetingServiceServer) Greet(context.Context, *GreetingsRequest) (*GreetingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Greet not implemented")
+}
+func (UnimplementedGreetingServiceServer) SayManyHello(*GreetingsRequest, GreetingService_SayManyHelloServer) error {
+	return status.Errorf(codes.Unimplemented, "method SayManyHello not implemented")
 }
 func (UnimplementedGreetingServiceServer) mustEmbedUnimplementedGreetingServiceServer() {}
 
@@ -92,6 +130,27 @@ func _GreetingService_Greet_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GreetingService_SayManyHello_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GreetingsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GreetingServiceServer).SayManyHello(m, &greetingServiceSayManyHelloServer{stream})
+}
+
+type GreetingService_SayManyHelloServer interface {
+	Send(*GreetingsResponse) error
+	grpc.ServerStream
+}
+
+type greetingServiceSayManyHelloServer struct {
+	grpc.ServerStream
+}
+
+func (x *greetingServiceSayManyHelloServer) Send(m *GreetingsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // GreetingService_ServiceDesc is the grpc.ServiceDesc for GreetingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +163,12 @@ var GreetingService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GreetingService_Greet_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SayManyHello",
+			Handler:       _GreetingService_SayManyHello_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/greeting/greeting.proto",
 }
