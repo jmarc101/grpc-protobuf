@@ -12,4 +12,5 @@ message GreetingsResponse {
 
 service GreetingService{
   rpc Greet(GreetingsRequest) returns (GreetingsResponse);
+  rpc SayManyHello(GreetingsRequest) returns (stream GreetingsResponse);
 }
